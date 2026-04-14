@@ -1,23 +1,35 @@
 import os
+import secrets
 import httpx
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+security = HTTPBasic()
 
 HIBP_API_KEY = os.getenv("HIBP_API_KEY", "")
+APP_USER = os.getenv("APP_USER", "marco")
+APP_PASS = os.getenv("APP_PASS", "")
+
+
+def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
+    ok_user = secrets.compare_digest(credentials.username, APP_USER)
+    ok_pass = secrets.compare_digest(credentials.password, APP_PASS)
+    if not (ok_user and ok_pass):
+        raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Basic"})
 HIBP_URL = "https://haveibeenpwned.com/api/v3/breachedaccount/{}"
 
 
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, _=Depends(check_auth)):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.post("/scan", response_class=HTMLResponse)
-async def scan(request: Request, email: str = Form(...)):
+async def scan(request: Request, email: str = Form(...), _=Depends(check_auth)):
     breaches = []
     error = None
 
