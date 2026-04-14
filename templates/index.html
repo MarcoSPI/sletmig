@@ -15,31 +15,13 @@
             align-items: center;
             justify-content: center;
         }
-        .container {
-            max-width: 520px;
+        .container { max-width: 520px; width: 100%; padding: 2rem; text-align: center; }
+        h1 { font-size: 2.8rem; font-weight: 800; color: #fff; letter-spacing: -1px; }
+        .tagline { color: #64748b; margin: 0.75rem 0 2.5rem; font-size: 1.05rem; line-height: 1.5; }
+        .form-grid { display: grid; gap: 0.75rem; margin-bottom: 1rem; }
+        input {
             width: 100%;
-            padding: 2rem;
-            text-align: center;
-        }
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.5px;
-        }
-        .tagline {
-            color: #64748b;
-            margin: 0.75rem 0 2.5rem;
-            font-size: 1.05rem;
-        }
-        .form-group {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        input[type="email"] {
-            flex: 1;
-            padding: 0.85rem 1rem;
+            padding: 0.9rem 1rem;
             border-radius: 8px;
             border: 1px solid #2d3748;
             background: #1a202c;
@@ -48,11 +30,10 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        input[type="email"]:focus {
-            border-color: #4299e1;
-        }
+        input:focus { border-color: #4299e1; }
         button {
-            padding: 0.85rem 1.5rem;
+            width: 100%;
+            padding: 0.9rem;
             border-radius: 8px;
             border: none;
             background: #4299e1;
@@ -61,30 +42,64 @@
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
-            white-space: nowrap;
         }
         button:hover { background: #3182ce; }
-        .disclaimer {
-            font-size: 0.8rem;
-            color: #4a5568;
-            margin-top: 1.5rem;
-            line-height: 1.5;
+        .steps {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin: 2rem 0;
+            text-align: left;
         }
+        .step {
+            background: #1a202c;
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.85rem;
+        }
+        .step-num { color: #4299e1; font-weight: 700; margin-bottom: 0.25rem; }
+        .step-title { color: #e2e8f0; font-weight: 600; margin-bottom: 0.25rem; }
+        .step-desc { color: #4a5568; }
+        .disclaimer { font-size: 0.78rem; color: #4a5568; margin-top: 1.5rem; line-height: 1.5; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>sletmig</h1>
-        <p class="tagline">Find ud af hvor din email er blevet lækket</p>
+        <p class="tagline">Find dit digitale fodspor — og få hjælp til at slette det.</p>
+
         <form action="/scan" method="post">
-            <div class="form-group">
-                <input type="email" name="email" placeholder="din@email.dk" required autofocus>
-                <button type="submit">Scan</button>
+            <div class="form-grid">
+                <input type="text" name="navn" placeholder="Dit fulde navn" required autofocus>
+                <input type="email" name="email" placeholder="din@email.dk" required>
             </div>
+            <button type="submit">Scan mit digitale fodspor</button>
         </form>
-        <p class="disclaimer">
-            Vi gemmer ikke din email. Scanningen bruger Have I Been Pwned — en offentlig database over kendte datalæk.
-        </p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">01</div>
+                <div class="step-title">Datalæk</div>
+                <div class="step-desc">Tjek om din email er lækket</div>
+            </div>
+            <div class="step">
+                <div class="step-num">02</div>
+                <div class="step-title">Google synlighed</div>
+                <div class="step-desc">Hvad finder andre når de søger på dig</div>
+            </div>
+            <div class="step">
+                <div class="step-num">03</div>
+                <div class="step-title">Databrokere</div>
+                <div class="step-desc">Krak, Eniro, Ratsit og flere</div>
+            </div>
+            <div class="step">
+                <div class="step-num">04</div>
+                <div class="step-title">GDPR emails</div>
+                <div class="step-desc">Færdige sletanmodninger klar til afsendelse</div>
+            </div>
+        </div>
+
+        <p class="disclaimer">Vi gemmer ingenting. Ingen database, ingen tracking. Alt forsvinder når du lukker siden.</p>
     </div>
 </body>
 </html>

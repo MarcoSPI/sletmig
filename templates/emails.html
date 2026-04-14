@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sletmig — GDPR sletanmodninger</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem 1rem; }
+        .container { max-width: 720px; margin: 0 auto; }
+        a.back { color: #4a5568; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 2rem; }
+        a.back:hover { color: #e2e8f0; }
+        .header { margin-bottom: 2rem; }
+        h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
+        .subtitle { color: #64748b; font-size: 0.9rem; margin-top: 0.4rem; }
+        .email-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.25rem; }
+        .email-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .email-site { font-weight: 700; font-size: 1.05rem; color: #fff; }
+        .email-dpo { font-size: 0.8rem; color: #4299e1; }
+        .email-body {
+            background: #0f1117;
+            border-radius: 6px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: #cbd5e0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 1rem;
+        }
+        .copy-btn {
+            background: #2d3748;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover { background: #4a5568; }
+        .copy-btn.copied { background: #276227; color: #68d391; }
+        .no-sites { background: #1a202c; border-radius: 10px; padding: 2rem; text-align: center; color: #64748b; }
+        .note {
+            background: #1a2535;
+            border-left: 3px solid #4299e1;
+            border-radius: 0 8px 8px 0;
+            padding: 1rem 1.25rem;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: #a0aec0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/" class="back">← Start forfra</a>
+
+    <div class="header">
+        <h1>GDPR sletanmodninger — {{ navn }}</h1>
+        <p class="subtitle">Kopiér og send hver email direkte til den angivne adresse.</p>
+    </div>
+
+    {% if emails | length == 0 %}
+    <div class="no-sites">
+        Du markerede ingen sites. <a href="/" style="color:#4299e1">Gå tilbage og prøv igen.</a>
+    </div>
+    {% else %}
+    <div class="note">
+        Under GDPR Art. 17 har du ret til at få dine personoplysninger slettet. Virksomheden skal svare inden 30 dage. Gemmer du ikke en kopi af svaret, kan du klage til <a href="https://www.datatilsynet.dk" target="_blank" style="color:#4299e1">Datatilsynet</a>.
+    </div>
+
+    {% for e in emails %}
+    <div class="email-card">
+        <div class="email-header">
+            <div>
+                <div class="email-site">{{ e.site }}</div>
+                <div class="email-dpo">Send til: {{ e.dpo }}</div>
+            </div>
+            <button class="copy-btn" onclick="kopier(this, '{{ loop.index }}')">Kopiér email</button>
+        </div>
+        <div class="email-body" id="email-{{ loop.index }}">{{ e.tekst }}</div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+
+<script>
+function kopier(btn, id) {
+    const tekst = document.getElementById('email-' + id).innerText;
+    navigator.clipboard.writeText(tekst).then(() => {
+        btn.textContent = '✓ Kopieret';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Kopiér email'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+</script>
+</body>
+</html>

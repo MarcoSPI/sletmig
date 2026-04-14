@@ -3,172 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sletmig — resultater</title>
+    <title>sletmig — {{ navn }}</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0f1117;
-            color: #e2e8f0;
-            min-height: 100vh;
-            padding: 2rem 1rem;
-        }
-        .container {
-            max-width: 680px;
-            margin: 0 auto;
-        }
-        .header {
-            margin-bottom: 2rem;
-        }
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-        }
-        .email {
-            color: #4299e1;
-            font-weight: 600;
-        }
-        .back {
-            display: inline-block;
-            margin-top: 0.5rem;
-            color: #4a5568;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .back:hover { color: #e2e8f0; }
-
-        /* Ingen læk */
-        .clean {
-            background: #1a2e1a;
-            border: 1px solid #276227;
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            color: #68d391;
-            font-size: 1.1rem;
-        }
-
-        /* Fejl */
-        .error-box {
-            background: #2d1a1a;
-            border: 1px solid #c53030;
-            border-radius: 12px;
-            padding: 1.5rem;
-            color: #fc8181;
-        }
-
-        /* Score */
-        .score {
-            background: #1a202c;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem 1rem; }
+        .container { max-width: 720px; margin: 0 auto; }
+        a.back { color: #4a5568; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 2rem; }
+        a.back:hover { color: #e2e8f0; }
+        h2 { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+        .section { margin-bottom: 2.5rem; }
+        .section-header {
             display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #2d3748;
+        }
+        .step-badge {
+            background: #4299e1;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* HIBP */
+        .clean { background: #1a2e1a; border: 1px solid #276227; border-radius: 10px; padding: 1.25rem; color: #68d391; }
+        .score { background: #1a202c; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; }
+        .score-number { font-size: 2.5rem; font-weight: 800; color: #fc8181; line-height: 1; }
+        .score-number.medium { color: #f6ad55; }
+        .score-number.low { color: #68d391; }
+        .score-label { color: #a0aec0; font-size: 0.85rem; }
+        .score-label strong { color: #e2e8f0; display: block; font-size: 0.95rem; }
+        .breach-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; }
+        .breach-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; }
+        .breach-name { font-weight: 700; color: #fff; }
+        .breach-date { font-size: 0.78rem; color: #4a5568; }
+        .breach-domain { font-size: 0.82rem; color: #4299e1; margin-bottom: 0.4rem; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+        .tag { background: #2d3748; border-radius: 4px; padding: 0.15rem 0.45rem; font-size: 0.72rem; color: #a0aec0; }
+        .tag.alert { background: #3d1f1f; color: #fc8181; }
+
+        /* Google */
+        .google-result { padding: 0.9rem 0; border-bottom: 1px solid #1e2533; }
+        .google-result:last-child { border-bottom: none; }
+        .g-title { color: #4299e1; font-weight: 600; margin-bottom: 0.2rem; }
+        .g-url { font-size: 0.78rem; color: #4a5568; margin-bottom: 0.3rem; word-break: break-all; }
+        .g-snippet { font-size: 0.85rem; color: #a0aec0; line-height: 1.4; }
+        .no-results { color: #4a5568; font-size: 0.9rem; padding: 1rem 0; }
+        .api-note { background: #1a202c; border-radius: 8px; padding: 1rem; color: #64748b; font-size: 0.85rem; }
+
+        /* Databrokere */
+        .broker-card {
+            background: #1a202c;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
             gap: 1rem;
         }
-        .score-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: #fc8181;
-            line-height: 1;
-        }
-        .score-number.medium { color: #f6ad55; }
-        .score-number.low { color: #68d391; }
-        .score-label { color: #a0aec0; font-size: 0.9rem; }
-        .score-label strong { color: #e2e8f0; display: block; font-size: 1rem; }
-
-        /* Breach cards */
-        .breach-card {
-            background: #1a202c;
-            border: 1px solid #2d3748;
-            border-radius: 10px;
-            padding: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
-        .breach-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-        .breach-name {
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: #fff;
-        }
-        .breach-date {
-            font-size: 0.8rem;
-            color: #4a5568;
-            white-space: nowrap;
-        }
-        .breach-domain {
-            font-size: 0.85rem;
-            color: #4299e1;
-            margin-bottom: 0.5rem;
-        }
-        .data-classes {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-        }
-        .tag {
+        .broker-info { flex: 1; }
+        .broker-name { font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+        .broker-hint { font-size: 0.8rem; color: #64748b; }
+        .broker-hint .mitid { color: #68d391; }
+        .btn-open {
             background: #2d3748;
-            border-radius: 4px;
-            padding: 0.2rem 0.5rem;
-            font-size: 0.75rem;
-            color: #a0aec0;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.2s;
         }
-        .tag.sensitive {
-            background: #3d1f1f;
-            color: #fc8181;
+        .btn-open:hover { background: #4a5568; }
+
+        /* Selvrapportering */
+        .report-form { background: #1a202c; border-radius: 10px; padding: 1.5rem; margin-top: 1rem; }
+        .report-form h3 { font-size: 1rem; color: #e2e8f0; margin-bottom: 0.5rem; }
+        .report-form p { font-size: 0.85rem; color: #64748b; margin-bottom: 1.25rem; }
+        .checkbox-grid { display: grid; gap: 0.5rem; margin-bottom: 1.25rem; }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #0f1117;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
+        .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: #4299e1; }
+        .btn-generate {
+            width: 100%;
+            padding: 0.9rem;
+            background: #4299e1;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-generate:hover { background: #3182ce; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Resultater for <span class="email">{{ email }}</span></h1>
-            <a href="/" class="back">← Scan en anden email</a>
+<div class="container">
+    <a href="/" class="back">← Ny scanning</a>
+
+    <!-- SEKTION 1: HIBP -->
+    <div class="section">
+        <div class="section-header">
+            <span class="step-badge">01</span>
+            <h2>Datalæk — {{ email }}</h2>
         </div>
 
-        {% if error %}
-        <div class="error-box">{{ error }}</div>
-
+        {% if hibp_error %}
+        <div class="api-note">{{ hibp_error }}</div>
         {% elif breaches | length == 0 %}
-        <div class="clean">
-            Ingen kendte læk fundet. Din email er ikke i Have I Been Pwned's database.
-        </div>
-
+        <div class="clean">Ingen kendte læk fundet for denne email.</div>
         {% else %}
         {% set count = breaches | length %}
         <div class="score">
-            <div class="score-number {% if count >= 5 %}{% elif count >= 2 %}medium{% else %}low{% endif %}">
-                {{ count }}
-            </div>
+            <div class="score-number {% if count >= 5 %}{% elif count >= 2 %}medium{% else %}low{% endif %}">{{ count }}</div>
             <div class="score-label">
-                <strong>{% if count == 1 %}1 læk fundet{% else %}{{ count }} læk fundet{% endif %}</strong>
+                <strong>{{ count }} læk fundet</strong>
                 Din email optræder i {{ count }} kendte datalæk
             </div>
         </div>
-
-        {% for breach in breaches | sort(attribute='BreachDate', reverse=True) %}
         {% set sensitive = ['Passwords', 'Credit cards', 'Social security numbers', 'Bank account numbers'] %}
+        {% for b in breaches | sort(attribute='BreachDate', reverse=True) %}
         <div class="breach-card">
             <div class="breach-header">
-                <span class="breach-name">{{ breach.Title }}</span>
-                <span class="breach-date">{{ breach.BreachDate }}</span>
+                <span class="breach-name">{{ b.Title }}</span>
+                <span class="breach-date">{{ b.BreachDate }}</span>
             </div>
-            <div class="breach-domain">{{ breach.Domain }}</div>
-            <div class="data-classes">
-                {% for dc in breach.DataClasses %}
-                <span class="tag {% if dc in sensitive %}sensitive{% endif %}">{{ dc }}</span>
+            {% if b.Domain %}<div class="breach-domain">{{ b.Domain }}</div>{% endif %}
+            <div class="tags">
+                {% for dc in b.DataClasses %}
+                <span class="tag {% if dc in sensitive %}alert{% endif %}">{{ dc }}</span>
                 {% endfor %}
             </div>
         </div>
         {% endfor %}
         {% endif %}
     </div>
+
+    <!-- SEKTION 2: Google synlighed -->
+    <div class="section">
+        <div class="section-header">
+            <span class="step-badge">02</span>
+            <h2>Google synlighed — "{{ navn }}"</h2>
+        </div>
+
+        {% if google_error %}
+        <div class="api-note">{{ google_error }} — <a href="https://programmablesearchengine.google.com" target="_blank" style="color:#4299e1">Opsæt Google CSE</a></div>
+        {% elif google_results | length == 0 %}
+        <p class="no-results">Ingen Google-resultater fundet for "{{ navn }}".</p>
+        {% else %}
+        {% for r in google_results %}
+        <div class="google-result">
+            <div class="g-title"><a href="{{ r.link }}" target="_blank" style="color:#4299e1;text-decoration:none;">{{ r.title }}</a></div>
+            <div class="g-url">{{ r.link }}</div>
+            <div class="g-snippet">{{ r.snippet }}</div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- SEKTION 3: Databrokere -->
+    <div class="section">
+        <div class="section-header">
+            <span class="step-badge">03</span>
+            <h2>Databrokere</h2>
+        </div>
+
+        {% for b in databrokers %}
+        <div class="broker-card">
+            <div class="broker-info">
+                <div class="broker-name">{{ b.navn }}</div>
+                <div class="broker-hint">
+                    {% if b.mitid %}<span class="mitid">Log ind med MitID</span> for at se og slette dine oplysninger{% else %}Søg på dit navn og tjek om du optræder{% endif %}
+                </div>
+            </div>
+            <a href="{{ b.url }}" target="_blank" class="btn-open">Åbn →</a>
+        </div>
+        {% endfor %}
+
+        <!-- Selvrapportering + GDPR form -->
+        <div class="report-form">
+            <h3>Hvad fandt du?</h3>
+            <p>Markér de sites hvor du optræder — så genererer vi GDPR-emails til dem.</p>
+            <form action="/generer-emails" method="post">
+                <input type="hidden" name="navn" value="{{ navn }}">
+                <input type="hidden" name="email" value="{{ email }}">
+                <div class="checkbox-grid">
+                    {% for b in databrokers %}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="{{ b.navn.split('.')[0] }}">
+                        Ja, jeg optræder på <strong>{{ b.navn }}</strong>
+                    </label>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn-generate">Generer sletanmodninger →</button>
+            </form>
+        </div>
+    </div>
+</div>
 </body>
 </html>
