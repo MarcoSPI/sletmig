@@ -170,11 +170,16 @@
         {% elif google_results | length == 0 %}
         <p class="no-results">Ingen Google-resultater fundet for "{{ navn }}".</p>
         {% else %}
+        {% set sociale = ['facebook.com', 'instagram.com', 'twitter.com', 'tiktok.com', 'x.com'] %}
         {% for r in google_results %}
+        {% set er_social = sociale | select('in', r.link) | list | length > 0 %}
         <div class="google-result">
-            <div class="g-title"><a href="{{ r.link }}" target="_blank" style="color:#4299e1;text-decoration:none;">{{ r.title }}</a></div>
+            <div class="g-title">
+                <a href="{{ r.link }}" target="_blank" style="color:#4299e1;text-decoration:none;">{{ r.title }}</a>
+                {% if er_social %}<span style="background:#3d2a1a;color:#f6ad55;font-size:0.7rem;padding:0.1rem 0.4rem;border-radius:3px;margin-left:0.5rem;">Socialt medie</span>{% endif %}
+            </div>
             <div class="g-url">{{ r.link }}</div>
-            <div class="g-snippet">{{ r.snippet or r.get('snippet_highlighted_words', '') }}</div>
+            <div class="g-snippet">{{ r.snippet }}</div>
         </div>
         {% endfor %}
         {% endif %}
