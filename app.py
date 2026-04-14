@@ -98,7 +98,7 @@ async def scan(request: Request, navn: str = Form(...), email: str = Form(...)):
             async with httpx.AsyncClient() as client:
                 resp = await client.get(
                     "https://serpapi.com/search",
-                    params={"q": f'"{navn}"', "api_key": SERPAPI_KEY, "num": 10, "hl": "da", "gl": "dk"},
+                    params={"q": f'"{navn}" -site:facebook.com -site:instagram.com -site:twitter.com -site:tiktok.com -site:snapchat.com', "api_key": SERPAPI_KEY, "num": 10, "hl": "da", "gl": "dk"},
                     timeout=15,
                 )
                 if resp.status_code == 200:
