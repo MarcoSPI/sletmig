@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sletmig — slet dit digitale fodspor</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 520px;
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .tagline {
+            color: #64748b;
+            margin: 0.75rem 0 2.5rem;
+            font-size: 1.05rem;
+        }
+        .form-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        input[type="email"] {
+            flex: 1;
+            padding: 0.85rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="email"]:focus {
+            border-color: #4299e1;
+        }
+        button {
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            background: #4299e1;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        button:hover { background: #3182ce; }
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-top: 1.5rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>sletmig</h1>
+        <p class="tagline">Find ud af hvor din email er blevet lækket</p>
+        <form action="/scan" method="post">
+            <div class="form-group">
+                <input type="email" name="email" placeholder="din@email.dk" required autofocus>
+                <button type="submit">Scan</button>
+            </div>
+        </form>
+        <p class="disclaimer">
+            Vi gemmer ikke din email. Scanningen bruger Have I Been Pwned — en offentlig database over kendte datalæk.
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sletmig — resultater</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+        .header {
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .email {
+            color: #4299e1;
+            font-weight: 600;
+        }
+        .back {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back:hover { color: #e2e8f0; }
+
+        /* Ingen læk */
+        .clean {
+            background: #1a2e1a;
+            border: 1px solid #276227;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            color: #68d391;
+            font-size: 1.1rem;
+        }
+
+        /* Fejl */
+        .error-box {
+            background: #2d1a1a;
+            border: 1px solid #c53030;
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: #fc8181;
+        }
+
+        /* Score */
+        .score {
+            background: #1a202c;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .score-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fc8181;
+            line-height: 1;
+        }
+        .score-number.medium { color: #f6ad55; }
+        .score-number.low { color: #68d391; }
+        .score-label { color: #a0aec0; font-size: 0.9rem; }
+        .score-label strong { color: #e2e8f0; display: block; font-size: 1rem; }
+
+        /* Breach cards */
+        .breach-card {
+            background: #1a202c;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .breach-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        .breach-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #fff;
+        }
+        .breach-date {
+            font-size: 0.8rem;
+            color: #4a5568;
+            white-space: nowrap;
+        }
+        .breach-domain {
+            font-size: 0.85rem;
+            color: #4299e1;
+            margin-bottom: 0.5rem;
+        }
+        .data-classes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .tag {
+            background: #2d3748;
+            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+        .tag.sensitive {
+            background: #3d1f1f;
+            color: #fc8181;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Resultater for <span class="email">{{ email }}</span></h1>
+            <a href="/" class="back">← Scan en anden email</a>
+        </div>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+
+        {% elif breaches | length == 0 %}
+        <div class="clean">
+            Ingen kendte læk fundet. Din email er ikke i Have I Been Pwned's database.
+        </div>
+
+        {% else %}
+        {% set count = breaches | length %}
+        <div class="score">
+            <div class="score-number {% if count >= 5 %}{% elif count >= 2 %}medium{% else %}low{% endif %}">
+                {{ count }}
+            </div>
+            <div class="score-label">
+                <strong>{% if count == 1 %}1 læk fundet{% else %}{{ count }} læk fundet{% endif %}</strong>
+                Din email optræder i {{ count }} kendte datalæk
+            </div>
+        </div>
+
+        {% for breach in breaches | sort(attribute='BreachDate', reverse=True) %}
+        {% set sensitive = ['Passwords', 'Credit cards', 'Social security numbers', 'Bank account numbers'] %}
+        <div class="breach-card">
+            <div class="breach-header">
+                <span class="breach-name">{{ breach.Title }}</span>
+                <span class="breach-date">{{ breach.BreachDate }}</span>
+            </div>
+            <div class="breach-domain">{{ breach.Domain }}</div>
+            <div class="data-classes">
+                {% for dc in breach.DataClasses %}
+                <span class="tag {% if dc in sensitive %}sensitive{% endif %}">{{ dc }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</body>
+</html>
