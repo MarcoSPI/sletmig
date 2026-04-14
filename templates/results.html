@@ -174,7 +174,7 @@
         <div class="google-result">
             <div class="g-title"><a href="{{ r.link }}" target="_blank" style="color:#4299e1;text-decoration:none;">{{ r.title }}</a></div>
             <div class="g-url">{{ r.link }}</div>
-            <div class="g-snippet">{{ r.snippet }}</div>
+            <div class="g-snippet">{{ r.snippet or r.get('snippet_highlighted_words', '') }}</div>
         </div>
         {% endfor %}
         {% endif %}

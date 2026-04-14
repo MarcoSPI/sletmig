@@ -13,8 +13,7 @@ app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", secrets
 templates = Jinja2Templates(directory="templates")
 
 HIBP_API_KEY = os.getenv("HIBP_API_KEY", "")
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID", "")
+SERPAPI_KEY = os.getenv("SERPAPI_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 APP_USER = os.getenv("APP_USER", "marco")
 APP_PASS = os.getenv("APP_PASS", "")
@@ -91,29 +90,26 @@ async def scan(request: Request, navn: str = Form(...), email: str = Form(...)):
         except Exception as e:
             hibp_error = f"Forbindelsesfejl: {e}"
 
-    # Google synlighed
+    # Google synlighed via SerpAPI
     google_results = []
     google_error = None
-    if GOOGLE_API_KEY and GOOGLE_CSE_ID:
+    if SERPAPI_KEY:
         try:
             async with httpx.AsyncClient() as client:
                 resp = await client.get(
-                    "https://www.googleapis.com/customsearch/v1",
-                    params={"key": GOOGLE_API_KEY, "cx": GOOGLE_CSE_ID, "q": f'"{navn}"', "num": 10},
-                    timeout=10,
+                    "https://serpapi.com/search",
+                    params={"q": f'"{navn}"', "api_key": SERPAPI_KEY, "num": 10, "hl": "da", "gl": "dk"},
+                    timeout=15,
                 )
                 if resp.status_code == 200:
-                    google_results = resp.json().get("items", [])
+                    data = resp.json()
+                    google_results = data.get("organic_results", [])
                 else:
-                    try:
-                        detail = resp.json().get("error", {}).get("message", resp.text[:200])
-                    except Exception:
-                        detail = resp.text[:200]
-                    google_error = f"Google API fejl: {resp.status_code} — {detail}"
+                    google_error = f"SerpAPI fejl: {resp.status_code}"
         except Exception as e:
-            google_error = f"Google fejl: {e}"
+            google_error = f"Søgefejl: {e}"
     else:
-        google_error = "Google API ikke konfigureret endnu"
+        google_error = "SERPAPI_KEY mangler"
 
     navn_enc = quote(navn)
     databrokers = [
