@@ -105,7 +105,11 @@ async def scan(request: Request, navn: str = Form(...), email: str = Form(...)):
                 if resp.status_code == 200:
                     google_results = resp.json().get("items", [])
                 else:
-                    google_error = f"Google API fejl: {resp.status_code}"
+                    try:
+                        detail = resp.json().get("error", {}).get("message", resp.text[:200])
+                    except Exception:
+                        detail = resp.text[:200]
+                    google_error = f"Google API fejl: {resp.status_code} — {detail}"
         except Exception as e:
             google_error = f"Google fejl: {e}"
     else:
