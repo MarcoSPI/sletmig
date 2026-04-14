@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sletmig — log ind</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container { max-width: 380px; width: 100%; padding: 2rem; }
+        h1 { font-size: 2rem; font-weight: 800; color: #fff; text-align: center; margin-bottom: 0.4rem; }
+        .tagline { color: #4a5568; font-size: 0.9rem; text-align: center; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 0.75rem; }
+        label { display: block; font-size: 0.82rem; color: #64748b; margin-bottom: 0.35rem; }
+        input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            background: #1a202c;
+            color: #e2e8f0;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: #4299e1; }
+        button {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.9rem;
+            border-radius: 8px;
+            border: none;
+            background: #4299e1;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #3182ce; }
+        .fejl {
+            background: #2d1a1a;
+            border: 1px solid #c53030;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #fc8181;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>sletmig</h1>
+        <p class="tagline">Log ind for at fortsætte</p>
+        {% if fejl %}
+        <div class="fejl">{{ fejl }}</div>
+        {% endif %}
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label>Brugernavn</label>
+                <input type="text" name="brugernavn" autofocus autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Adgangskode</label>
+                <input type="password" name="adgangskode" autocomplete="current-password">
+            </div>
+            <button type="submit">Log ind</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -2,15 +2,15 @@ import os
 import secrets
 import httpx
 import anthropic
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import FastAPI, Request, Form, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
 from urllib.parse import quote
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", secrets.token_hex(32)))
 templates = Jinja2Templates(directory="templates")
-security = HTTPBasic()
 
 HIBP_API_KEY = os.getenv("HIBP_API_KEY", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
@@ -20,25 +20,54 @@ APP_USER = os.getenv("APP_USER", "marco")
 APP_PASS = os.getenv("APP_PASS", "")
 
 
-def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
-    ok_user = secrets.compare_digest(credentials.username, APP_USER)
-    ok_pass = secrets.compare_digest(credentials.password, APP_PASS)
-    if not (ok_user and ok_pass):
-        raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Basic"})
+def kræv_login(request: Request):
+    if not request.session.get("logget_ind"):
+        raise Exception("ikke logget ind")
 
+
+def er_logget_ind(request: Request) -> bool:
+    return bool(request.session.get("logget_ind"))
+
+
+# ── Login ──────────────────────────────────────────────
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_side(request: Request):
+    if er_logget_ind(request):
+        return RedirectResponse("/", status_code=302)
+    return templates.TemplateResponse("login.html", {"request": request, "fejl": None})
+
+
+@app.post("/login", response_class=HTMLResponse)
+async def login_post(request: Request, brugernavn: str = Form(...), adgangskode: str = Form(...)):
+    ok_user = secrets.compare_digest(brugernavn, APP_USER)
+    ok_pass = secrets.compare_digest(adgangskode, APP_PASS)
+    if ok_user and ok_pass:
+        request.session["logget_ind"] = True
+        return RedirectResponse("/", status_code=302)
+    return templates.TemplateResponse("login.html", {"request": request, "fejl": "Forkert brugernavn eller adgangskode"})
+
+
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse("/login", status_code=302)
+
+
+# ── Beskyttede sider ───────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request, _=Depends(check_auth)):
+async def index(request: Request):
+    if not er_logget_ind(request):
+        return RedirectResponse("/login", status_code=302)
     return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.post("/scan", response_class=HTMLResponse)
-async def scan(
-    request: Request,
-    navn: str = Form(...),
-    email: str = Form(...),
-    _=Depends(check_auth),
-):
+async def scan(request: Request, navn: str = Form(...), email: str = Form(...)):
+    if not er_logget_ind(request):
+        return RedirectResponse("/login", status_code=302)
+
     # HIBP scan
     breaches = []
     hibp_error = None
@@ -82,13 +111,12 @@ async def scan(
     else:
         google_error = "Google API ikke konfigureret endnu"
 
-    # Databroker links med præudfyldt søgning
     navn_enc = quote(navn)
     databrokers = [
-        {"navn": "krak.dk",         "url": f"https://www.krak.dk/person/resultat/{navn_enc}", "dpo": "dataprotectionoffice@krak.dk",  "mitid": True},
-        {"navn": "eniro.dk",        "url": f"https://www.eniro.dk/person/?what={navn_enc}",    "dpo": "privatpersoner@eniro.com",        "mitid": False},
-        {"navn": "ratsit.se",       "url": f"https://www.ratsit.se/search?query={navn_enc}",   "dpo": "kundservice@ratsit.se",           "mitid": False},
-        {"navn": "degulesider.dk",  "url": f"https://www.degulesider.dk/person/?what={navn_enc}", "dpo": "dpo@degulesider.dk",          "mitid": False},
+        {"navn": "krak.dk",        "url": f"https://www.krak.dk/person/resultat/{navn_enc}",       "dpo": "dataprotectionoffice@krak.dk", "mitid": True},
+        {"navn": "eniro.dk",       "url": f"https://www.eniro.dk/person/?what={navn_enc}",          "dpo": "privatpersoner@eniro.com",     "mitid": False},
+        {"navn": "ratsit.se",      "url": f"https://www.ratsit.se/search?query={navn_enc}",         "dpo": "kundservice@ratsit.se",        "mitid": False},
+        {"navn": "degulesider.dk", "url": f"https://www.degulesider.dk/person/?what={navn_enc}",    "dpo": "dpo@degulesider.dk",           "mitid": False},
     ]
 
     return templates.TemplateResponse("results.html", {
@@ -112,15 +140,24 @@ async def generer_emails(
     eniro: str = Form(default=""),
     ratsit: str = Form(default=""),
     degulesider: str = Form(default=""),
-    _=Depends(check_auth),
 ):
+    if not er_logget_ind(request):
+        return RedirectResponse("/login", status_code=302)
+
     site_map = {
-        "krak":        {"navn": "Krak.dk",         "dpo": "dataprotectionoffice@krak.dk"},
-        "eniro":       {"navn": "Eniro.dk",         "dpo": "privatpersoner@eniro.com"},
-        "ratsit":      {"navn": "Ratsit.se",        "dpo": "kundservice@ratsit.se"},
-        "degulesider": {"navn": "De Gule Sider",    "dpo": "dpo@degulesider.dk"},
+        "krak":        {"navn": "Krak.dk",       "dpo": "dataprotectionoffice@krak.dk"},
+        "eniro":       {"navn": "Eniro.dk",       "dpo": "privatpersoner@eniro.com"},
+        "ratsit":      {"navn": "Ratsit.se",      "dpo": "kundservice@ratsit.se"},
+        "degulesider": {"navn": "De Gule Sider",  "dpo": "dpo@degulesider.dk"},
     }
-    valgte = {k: v for k, v in site_map.items() if locals().get(k)}
+    valgte = {k: v for k, v in site_map.items() if request.form and (await request.form()).get(k)}
+
+    # Genbyg valgte fra form-felterne direkte
+    valgte = {}
+    if krak: valgte["krak"] = site_map["krak"]
+    if eniro: valgte["eniro"] = site_map["eniro"]
+    if ratsit: valgte["ratsit"] = site_map["ratsit"]
+    if degulesider: valgte["degulesider"] = site_map["degulesider"]
 
     emails = []
     if ANTHROPIC_API_KEY and valgte:
